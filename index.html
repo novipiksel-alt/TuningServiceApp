@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="bs" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AD CHIP TUNING // Professional ECU Remap & Chiptuning Support</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDK (App & Firestore - Compat verzije) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Google Fonts: Orbitron & Fira Code -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        .robo-font { font-family: 'Orbitron', sans-serif; }
+        .digital-font, body, input, select, textarea, button { font-family: 'Fira Code', monospace; }
+
+        body {
+            background-color: #030712;
+            background-image: 
+                radial-gradient(at 15% 15%, rgba(220, 38, 38, 0.22) 0px, transparent 55%),
+                radial-gradient(at 85% 85%, rgba(147, 51, 234, 0.18) 0px, transparent 55%),
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 35px 35px, 35px 35px;
+            overflow-y: auto !important;
+        }
+
+        .robo-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .robo-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ef4444, transparent);
+            opacity: 0.3;
+            transition: opacity 0.4s, background 0.4s;
+        }
+
+        .robo-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            border-color: rgba(239, 68, 68, 0.6);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.9), 0 0 35px rgba(239, 68, 68, 0.25);
+            background: rgba(30, 41, 59, 0.85);
+        }
+
+        .featured-ai-card {
+            background: linear-gradient(135deg, rgba(69, 10, 10, 0.85), rgba(15, 23, 42, 0.9));
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 35px rgba(239, 68, 68, 0.3);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .featured-ai-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #f97316, #ef4444, #b91c1c);
+        }
+
+        .btn-robo {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.9), rgba(185, 28, 28, 0.9));
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(252, 165, 165, 0.4);
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.35);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn-ai {
+            background: linear-gradient(135deg, rgba(234, 88, 12, 0.9), rgba(220, 38, 38, 0.9));
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(253, 186, 116, 0.5);
+            box-shadow: 0 0 25px rgba(234, 88, 12, 0.5);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glow-text { text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+        .ai-glow-text { text-shadow: 0 0 20px rgba(249, 115, 22, 0.8); }
+        .cyber-badge { box-shadow: 0 0 12px rgba(239, 68, 68, 0.3); }
+
+        .matrix-clock-box {
+            background: rgba(2, 6, 23, 0.9);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.1), inset 0 0 15px rgba(239, 68, 68, 0.05);
+        }
+        .matrix-text {
+            color: #f87171;
+            text-shadow: 0 0 12px rgba(248, 113, 113, 0.7);
+        }
+
+        @keyframes marqueeScroll {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .marquee-track {
+            display: flex;
+            width: max-content;
+            animation: marqueeScroll 22s linear infinite;
+        }
+
+        .marquee-track:hover { animation-play-state: paused; }
+        
+        .terminal-scroll::-webkit-scrollbar { width: 6px; }
+        .terminal-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        .terminal-scroll::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 3px; }
+
+        .chat-widget-box {
+            background: rgba(10, 15, 30, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+    </style>
+</head>
+<body class="text-gray-100 font-sans antialiased min-h-screen flex flex-col justify-between relative">
+
+    <!-- TOP MARQUEE TRAKA -->
+    <div class="fixed top-0 left-0 right-0 z-50 bg-gray-950/90 border-b border-red-500/30 backdrop-blur-md py-1 overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
+        <div class="marquee-track flex items-center gap-10 text-[11px] font-normal tracking-wider text-red-300 digital-font">
+            <div class="flex items-center gap-6 shrink-0">
+                <span class="flex items-center gap-1.5"><span class="text-red-400 font-light">//</span> MOB: <a href="tel:061103677" class="text-gray-200 hover:text-red-300 transition">061 103 677</a></span>
+                <span class="text-gray-700">❖</span>
+                <span class="flex items-center gap-1.5"><span class="text-red-400 font-light">//</span> MAIL: <a href="mailto:bmwsn1p3r@gmail.com" class="text-gray-200 hover:text-red-300 transition">bmwsn1p3r@gmail.com</a></span>
+                <span class="text-gray-700">❖</span>
+                <span class="text-emerald-400 flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> AD CHIP TUNING FILE SERVICE ACTIVE</span>
+                <span class="text-gray-700">❖</span>
+            </div>
+            <div class="flex items-center gap-6 shrink-0">
+                <span class="flex items-center gap-1.5"><span class="text-red-400 font-light">//</span> MOB: <a href="tel:061103677" class="text-gray-200 hover:text-red-300 transition">061 103 677</a></span>
+                <span class="text-gray-700">❖</span>
+                <span class="flex items-center gap-1.5"><span class="text-red-400 font-light">//</span> MAIL: <a href="mailto:bmwsn1p3r@gmail.com" class="text-gray-200 hover:text-red-300 transition">bmwsn1p3r@gmail.com</a></span>
+                <span class="text-gray-700">❖</span>
+                <span class="text-emerald-400 flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> AD CHIP TUNING FILE SERVICE ACTIVE</span>
+                <span class="text-gray-700">❖</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- GLAVNA NAVIGACIJA -->
+    <header class="sticky top-[26px] z-40 bg-gray-950/85 backdrop-blur-xl border-b border-white/10 shadow-2xl mt-6">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="h-3 w-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_12px_#ef4444]"></div>
+                    <span class="text-xl font-black tracking-widest text-white robo-font">AD <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-400 glow-text">CHIP_TUNING</span></span>
+                </div>
+
+                <div class="hidden sm:flex items-center gap-6 text-xs font-mono text-gray-300 border border-white/15 px-4 py-1.5 rounded-full bg-white/5 digital-font">
+                    <span id="userStatusBadge" class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span> WINOLS FILE SERVER ONLINE</span>
+                    <span class="text-gray-600">|</span>
+                    <span>v2026.10_AD</span>
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                    <button onclick="toggleAuthModal()" id="authNavBtn" class="border border-red-500/40 text-red-300 hover:bg-red-500/20 rounded-xl px-3 py-1.5 text-xs font-bold uppercase digital-font transition">
+                        👤 Prijava / Registracija
+                    </button>
+                    <button onclick="toggleAdminPanel()" class="border border-purple-500/40 text-purple-300 hover:bg-purple-500/20 rounded-xl px-3 py-1.5 text-xs font-bold uppercase digital-font transition">
+                        🔑 Admin Panel
+                    </button>
+                    <button onclick="openModal()" class="btn-robo rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider text-white robo-font hidden sm:block">
+                        POŠALJI MAPU
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- TERMINAL CHRONO SYSTEM CLOCK -->
+    <div class="mx-auto max-w-7xl px-4 pt-5 sm:px-6 lg:px-8 relative z-10 w-full">
+        <div class="matrix-clock-box rounded-2xl p-3 sm:p-3.5 flex flex-col md:flex-row items-center justify-between gap-3 font-mono text-xs digital-font">
+            <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
+                <div class="flex items-center gap-2.5">
+                    <span class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </span>
+                    <span class="text-red-400 font-bold tracking-wider">[AD_CHRONO]</span>
+                </div>
+                <span class="text-gray-600 hidden sm:inline">//</span>
+                <span id="terminalLogClock" class="text-gray-400 text-[11px] truncate max-w-[280px] sm:max-w-md">LOADING CHECKSUM ALGORITHMS...</span>
+            </div>
+
+            <div class="flex items-center gap-3 bg-red-950/40 border border-red-500/20 px-3 py-1.5 rounded-xl w-full md:w-auto justify-center">
+                <span id="matrixDate" class="text-[11px] text-red-400/80 tracking-widest">2026-10-20</span>
+                <span class="text-gray-600">|</span>
+                <div class="flex items-center gap-1">
+                    <span class="text-red-400 font-bold">UTC:</span>
+                    <span id="matrixClock" class="text-sm sm:text-base font-black tracking-widest matrix-text">00:00:00.00</span>
+                    <span class="animate-pulse text-red-400 font-bold">_</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HERO SEKCIJA -->
+    <section class="relative py-10 px-4 text-center overflow-hidden">
+        <div class="mx-auto max-w-5xl relative z-10">
+            <div class="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-500/10 px-5 py-2 text-xs font-mono text-red-300 mb-6 cyber-badge digital-font">
+                <span class="animate-ping h-2 w-2 rounded-full bg-red-400"></span>
+                PROFESIONALNA PODRŠKA ZA CHIPTUNING SERVISE I KLIJENTE
+            </div>
+
+            <h1 class="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white robo-font leading-tight">
+                AD CHIP TUNING <span class="bg-gradient-to-r from-red-500 via-orange-400 to-yellow-400 text-transparent bg-clip-text glow-text">ONLINE FILE SERVICE</span>
+            </h1>
+            
+            <p class="mt-6 text-xs sm:text-base text-gray-300 font-mono tracking-widest max-w-3xl mx-auto leading-relaxed digital-font">
+                // STAGE 1 & 2 // DPF / EGR / ADBLUE OFF // POP & BANGS // DTC REMOVAL // WINOLS
+            </p>
+
+            <div class="mt-8 flex justify-center gap-4 flex-wrap">
+                <button onclick="openModal()" class="btn-robo rounded-2xl px-8 py-4 text-xs sm:text-sm font-bold uppercase tracking-widest text-white robo-font">
+                    POŠALJI DUMP ZA OBRADU
+                </button>
+                <button onclick="scrollToCalc()" class="bg-slate-800/80 hover:bg-slate-700/80 border border-slate-600/50 rounded-2xl px-8 py-4 text-xs sm:text-sm font-bold uppercase tracking-widest text-gray-200 digital-font transition">
+                    CJENOVNIK USLUGA →
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- KATALOG REMAP USLUGA -->
+    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 relative z-10 mb-12 w-full">
+        <div class="mb-10 text-left border-b border-white/10 pb-4">
+            <h2 class="text-2xl font-black tracking-wider text-white sm:text-3xl robo-font">Katalog Tuning & Remap Usluga</h2>
+            <p class="mt-1 text-xs text-gray-400 digital-font">Prilagođena obrada binarne mape i podrška u realnom vremenu</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div onclick="openModal('stage1_2')" class="featured-ai-card rounded-3xl p-8 cursor-pointer flex flex-col justify-between md:col-span-2 lg:col-span-3">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div class="flex items-start gap-5">
+                        <div class="p-4 rounded-2xl bg-red-500/20 border border-red-500/40 text-red-300 shrink-0">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="cyber-badge-ai rounded-full bg-red-500/20 border border-red-500/50 px-3 py-1 text-[10px] font-mono font-bold text-red-300 robo-font animate-pulse">🔥 PREPORUKA ZA MAX PERFORMANSE</span>
+                                <span class="text-xs font-mono text-orange-400">STAGE 1 // STAGE 2 // CHECKSUM CORRECTION</span>
+                            </div>
+                            <h3 class="text-2xl sm:text-3xl font-black text-white robo-font tracking-wide ai-glow-text mb-2">Stage 1 & Stage 2 Custom Remap</h3>
+                            <p class="text-xs sm:text-sm text-gray-300 leading-relaxed digital-font max-w-3xl">
+                                Pojedinačni razvoj parametara ubrizgavanja, pritiska turbine, Rail pritiska i obrtnog momenta. Značajno povećanje snage (KS) i obrtnog momenta (Nm) uz optimalnu potrošnju goriva.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <button type="button" onclick="openModal('stage1_2')" class="btn-ai rounded-2xl px-6 py-3.5 text-xs font-bold uppercase tracking-widest text-white robo-font whitespace-nowrap">
+                            ZATRAŽI OBRADU →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DPF / EGR / ADBLUE OFF -->
+            <div onclick="openModal('dpf_egr_adblue')" class="robo-card rounded-3xl p-7 cursor-pointer flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="p-3.5 rounded-2xl bg-orange-500/15 border border-orange-500/30 text-orange-400">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        </div>
+                        <span class="cyber-badge rounded-full bg-orange-500/10 border border-orange-500/30 px-3 py-1 text-[10px] font-mono font-bold text-orange-300 robo-font">ECOLOGY_OFF</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white robo-font tracking-wide mb-3">DPF / EGR / AdBlue OFF</h3>
+                    <p class="text-xs text-gray-300 leading-relaxed digital-font">
+                        Potpuno softversko isključivanje DPF filtera, EGR ventila i AdBlue/SCR sistema iz kompjuterske mape računara bez grešaka na tabli.
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-orange-400 font-bold robo-font group">
+                    <span>ZATRAŽI REMAP</span>
+                    <span class="transition-transform group-hover:translate-x-2">→</span>
+                </div>
+            </div>
+
+            <!-- POP & BANGS -->
+            <div onclick="openModal('pop_bangs')" class="robo-card rounded-3xl p-7 cursor-pointer flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="p-3.5 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-400">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/></svg>
+                        </div>
+                        <span class="cyber-badge rounded-full bg-red-500/10 border border-red-500/30 px-3 py-1 text-[10px] font-mono font-bold text-red-300 robo-font">EXHAUST_MODS</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white robo-font tracking-wide mb-3">Pop & Bangs / Burble Mod</h3>
+                    <p class="text-xs text-gray-300 leading-relaxed digital-font">
+                        Dodavanje zvuka pucketanja i pucanja iz auspuha pri oduzimanju gasa. Podesivo po želji sa aktivacijom na sport mod.
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-red-400 font-bold robo-font group">
+                    <span>ZATRAŽI REMAP</span>
+                    <span class="transition-transform group-hover:translate-x-2">→</span>
+                </div>
+            </div>
+
+            <!-- DTC OFF -->
+            <div onclick="openModal('dtc_off')" class="robo-card rounded-3xl p-7 cursor-pointer flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="p-3.5 rounded-2xl bg-purple-500/15 border border-purple-500/30 text-purple-400">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <span class="cyber-badge rounded-full bg-purple-500/10 border border-purple-500/30 px-3 py-1 text-[10px] font-mono font-bold text-purple-300 robo-font">DTC_DELETE</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white robo-font tracking-wide mb-3">DTC Trajno Uklanjanje Grešaka</h3>
+                    <p class="text-xs text-gray-300 leading-relaxed digital-font">
+                        Selektivno brisanje specifičnih dijagnostičkih kodova grešaka direktno iz ECU mape bez ulaska u limp mod.
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-purple-400 font-bold robo-font group">
+                    <span>ZATRAŽI REMAP</span>
+                    <span class="transition-transform group-hover:translate-x-2">→</span>
+                </div>
+            </div>
+
+            <!-- SPECIAL MODS -->
+            <div onclick="openModal('special_mods')" class="robo-card rounded-3xl p-7 cursor-pointer flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                        </div>
+                        <span class="cyber-badge rounded-full bg-amber-500/10 border border-amber-500/30 px-3 py-1 text-[10px] font-mono font-bold text-amber-300 robo-font">CUSTOM_FUNCTIONS</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white robo-font tracking-wide mb-3">Hot Start Fix & Swirl Flaps OFF</h3>
+                    <p class="text-xs text-gray-300 leading-relaxed digital-font">
+                        Rješavanje problema sa toplim startom, isključivanje usisnih zaklopki (Swirl Flaps) i VMAX limitera brzine.
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-amber-400 font-bold robo-font group">
+                    <span>ZATRAŽI REMAP</span>
+                    <span class="transition-transform group-hover:translate-x-2">→</span>
+                </div>
+            </div>
+
+            <!-- TCU TUNING -->
+            <div onclick="openModal('tcu_tuning')" class="robo-card rounded-3xl p-7 cursor-pointer flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="p-3.5 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                        </div>
+                        <span class="cyber-badge rounded-full bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 text-[10px] font-mono font-bold text-cyan-300 robo-font">TCU_REMAP</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white robo-font tracking-wide mb-3">TCU Mjenjač Tuning (DSG / ZF8)</h3>
+                    <p class="text-xs text-gray-300 leading-relaxed digital-font">
+                        Optimizacija rada automatskih mjenjača. Brže izmjene brzina, podešavanje Launch Control-a i obrtnog momenta.
+                    </p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-cyan-400 font-bold robo-font group">
+                    <span>ZATRAŽI REMAP</span>
+                    <span class="transition-transform group-hover:translate-x-2">→</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- KALKULATOR -->
+    <section id="calcSection" class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 mb-16 w-full">
+        <div class="robo-card rounded-3xl p-8 border border-red-500/30">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-black text-white robo-font">📊 KALKULATOR TUNE FAJLOVA IN REAL-TIME</h2>
+                    <p class="text-xs text-gray-400 digital-font">Izračunajte okvirnu cijenu obrade binarne mape</p>
+                </div>
+                <span class="px-3 py-1 text-[10px] bg-red-500/20 text-red-300 rounded-full font-mono border border-red-500/40 digital-font">INSTANT ESTIMATE</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 digital-font mb-2">1. IZABERITE TIP OBRADE</label>
+                    <select id="calcService" onchange="calculateEstimate()" class="w-full rounded-xl bg-gray-900 border border-gray-700 px-4 py-3 text-xs text-white focus:border-red-500 focus:outline-none digital-font">
+                        <option value="stage1">Stage 1 Custom Remap</option>
+                        <option value="stage2">Stage 2 / Pop & Bangs</option>
+                        <option value="eco">DPF / EGR / AdBlue OFF Jedan Sistem</option>
+                        <option value="combo">Stage 1 + DPF/EGR OFF Komplet</option>
+                        <option value="dtc">DTC Uklanjanje Grešaka</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 digital-font mb-2">2. ECU RACUNAR VOZILA</label>
+                    <select id="calcScale" onchange="calculateEstimate()" class="w-full rounded-xl bg-gray-900 border border-gray-700 px-4 py-3 text-xs text-white focus:border-red-500 focus:outline-none digital-font">
+                        <option value="standard">Standardni ECU (Bosch EDC16/EDC17, Denso, VAG)</option>
+                        <option value="advanced">Nova Generacija ECU (Bosch MD1/MG1)</option>
+                        <option value="tcu">TCU Mjenjač (DSG, ZF8HP)</option>
+                    </select>
+                </div>
+
+                <div class="flex flex-col justify-between bg-gray-900/90 rounded-2xl p-4 border border-white/10">
+                    <div>
+                        <span class="text-[10px] text-gray-400 digital-font block">OKVIRNA CIJENA OBRADE:</span>
+                        <div id="calcResult" class="text-2xl font-black text-red-400 robo-font mt-1">100 - 200 KM</div>
+                    </div>
+                    <button onclick="applyCalcToForm()" class="btn-robo w-full mt-3 rounded-xl py-2 text-[11px] font-bold text-white robo-font">
+                        POŠALJI FAJL NA OBRADU
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TERMINAL WIDGET (CLI) -->
+    <section class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 mb-16 w-full">
+        <div class="rounded-2xl bg-black/90 border border-red-500/40 p-4 font-mono text-xs shadow-2xl digital-font">
+            <div class="flex items-center justify-between border-b border-gray-800 pb-2 mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="h-3 w-3 rounded-full bg-red-500 inline-block"></span>
+                    <span class="h-3 w-3 rounded-full bg-yellow-500 inline-block"></span>
+                    <span class="h-3 w-3 rounded-full bg-green-500 inline-block"></span>
+                    <span class="ml-2 text-gray-400 text-[10px]">winols-shell v4.8 (ad-tty1)</span>
+                </div>
+                <span class="text-red-400 text-[10px]">● CHECKSUM READY</span>
+            </div>
+
+            <div id="terminalLog" class="h-32 overflow-y-auto terminal-scroll text-gray-300 space-y-1 mb-2">
+                <p class="text-gray-500">// AD CHIP TUNING CLI v2026. Ukucajte <span class="text-red-400">'help'</span>, <span class="text-orange-400">'ecu'</span> ili <span class="text-purple-400">'admin'</span>.</p>
+            </div>
+
+            <form onsubmit="handleTerminalSubmit(event)" class="flex items-center gap-2">
+                <span class="text-red-400 font-bold">tuner@ad-chip:~#</span>
+                <input type="text" id="terminalInput" autocomplete="off" placeholder="Unesite komandu (help, ecu, stage1, dpf, login, admin, clear)..." class="flex-1 bg-transparent text-red-300 focus:outline-none digital-font text-xs">
+            </form>
+        </div>
+    </section>
+
+    <!-- AUTH MODAL -->
+    <div id="authModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+        <div class="w-full max-w-md rounded-3xl bg-gray-950 border border-red-500/50 p-6 sm:p-8 shadow-2xl relative digital-font">
+            <button onclick="toggleAuthModal()" class="absolute right-5 top-5 text-gray-400 hover:text-white text-xl font-mono">✕</button>
+
+            <div class="flex rounded-xl bg-gray-900 p-1 border border-white/10 mb-6">
+                <button onclick="switchAuthTab('login')" id="tabLoginBtn" class="flex-1 py-2 text-xs font-bold rounded-lg bg-red-600 text-white robo-font transition">PRIJAVA TUNERA</button>
+                <button onclick="switchAuthTab('register')" id="tabRegBtn" class="flex-1 py-2 text-xs font-bold rounded-lg text-gray-400 hover:text-white robo-font transition">REGISTRACIJA</button>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="space-y-4">
+                <h3 class="text-base font-bold text-red-400 robo-font mb-2">// KORISNIČKI / ADMIN LOGIN</h3>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-300 mb-1">EMAIL ADRESA</label>
+                    <input type="email" id="loginEmail" required placeholder="bmwsn1p3r@gmail.com" class="w-full rounded-xl bg-gray-900 border border-gray-700 px-4 py-2.5 text-xs text-white focus:border-red-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-300 mb-1">LOZINKA</label>
+                    <input type="password" id="loginPassword" required placeholder="********" class="w-full rounded-xl bg-gray-900 border border-gray-700 px-4 py-2.5 text-xs text-white focus:border-red-500 focus:outline-none">
+                </div>
+                <button type="submit" class="w-full btn-robo py-3 rounded-xl text-xs font-bold text-white robo-font mt-2">PRIJAVI SE</button>
+            </form>
+
+            <form id="registerForm" onsubmit="handleRegisterSubmit(event)" class="space-y-3.5 hidden">
+                <h3 class="text-base font-bold text-emerald-400 robo-font mb-2">// NOVI SERVIS / TUNER RAČUN</h3>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-300 mb-1">NAZIV SERVISA ILI IME</label>
+                    <input type="text" id="regName" required placeholder="Vaše ime" class="w-full rounded-xl bg-gray-900 border border-gray-700 px-3.5 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-300 mb-1">EMAIL ADRESA</label>
+                    <input type="email" id="regEmail" required placeholder="email@domena.com" class="w-full rounded-xl bg-gray-900 border border-gray-700 px-3.5 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-300 mb-1">KREIRAJ LOZINKU</label>
+                    <input type="password" id="regPassword" required placeholder="********" class="w-full rounded-xl bg-gray-900 border border-gray-700 px-3.5 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none">
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl text-xs font-bold text-white robo-font mt-2 shadow-[0_0_20px_rgba(16,185,129,0.4)] transition">KREIRAJ RAČUN</button>
+            </form>
+
+            <div id="authStatusMsg" class="mt-4 text-center text-[11px] text-gray-400"></div>
+        </div>
+    </div>
+
+    <!-- FLOATING CHAT WIDGET -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button id="chatToggleBtn" onclick="toggleChatWidget()" class="btn-robo rounded-full w-14 h-14 flex items-center justify-center shadow-2xl text-white relative hover:scale-110 transition-transform">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            <span id="chatBadge" class="hidden absolute -top-1 -right-1 h-3.5 w-3.5 bg-emerald-400 rounded-full border-2 border-gray-900 animate-pulse"></span>
+        </button>
+
+        <div id="chatWidget" class="hidden chat-widget-box w-80 sm:w-96 rounded-3xl p-4 flex-col justify-between absolute bottom-16 right-0 h-[450px]">
+            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                    <div>
+                        <h4 class="text-xs font-bold text-white robo-font">AD CHIP LIVE SUPPORT</h4>
+                        <span id="sessionDisplay" class="text-[9px] text-gray-400 digital-font">ID: SEC-3920</span>
+                    </div>
+                </div>
+                <button onclick="toggleChatWidget()" class="text-gray-400 hover:text-white text-xs font-mono">✕</button>
+            </div>
+
+            <div id="chatMessages" class="flex-1 overflow-y-auto my-3 space-y-2.5 text-xs digital-font terminal-scroll pr-1 flex flex-col">
+                <div class="bg-red-950/60 border border-red-500/30 p-2.5 rounded-2xl max-w-[85%] text-gray-200">
+                    <span class="text-[9px] text-red-400 block mb-0.5">AD CHIP // SUPPORT</span>
+                    Pozdrav! Koji ECU računar ili vozilo radite? Pošaljite HW/SW broj ili opis.
+                </div>
+            </div>
+
+            <form onsubmit="sendUserChatMessage(event)" class="flex items-center gap-2 pt-2 border-t border-white/10">
+                <input type="text" id="chatInput" placeholder="Napišite poruku..." autocomplete="off" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:border-red-500 focus:outline-none digital-font">
+                <button type="submit" class="btn-robo px-3 py-2 rounded-xl text-xs font-bold text-white robo-font">➔</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADMIN CONSOLE MODAL -->
+    <div id="adminModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+        <div class="w-full max-w-3xl rounded-3xl bg-gray-950 border border-purple-500/50 p-6 shadow-2xl relative">
+            <button onclick="toggleAdminPanel()" class="absolute right-5 top-5 text-gray-400 hover:text-white text-xl font-mono">✕</button>
+            
+            <h3 class="text-lg font-bold text-purple-400 robo-font mb-1">// ADMIN TUNING CONSOLE</h3>
+            <p class="text-xs text-gray-400 digital-font mb-4">Upravljanje zahtjevima u realnom vremenu</p>
+
+            <div id="adminAuth" class="space-y-4 py-8 text-center max-w-sm mx-auto">
+                <label class="block text-xs text-gray-300 digital-font">UNESITE ADMIN PIN KOD *</label>
+                <input type="password" id="adminPinInput" placeholder="****" class="w-full text-center tracking-widest text-lg rounded-xl bg-gray-900 border border-gray-700 px-4 py-3 text-white focus:border-purple-500 focus:outline-none digital-font">
+                <button onclick="verifyAdminPin()" class="btn-ai w-full py-3 rounded-xl text-xs font-bold text-white robo-font">VERIFIKUJ PRISTUP</button>
+            </div>
+
+            <div id="adminDashboard" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4 h-[400px]">
+                <div class="bg-gray-900/90 rounded-2xl p-3 border border-gray-800 flex flex-col">
+                    <span class="text-[10px] font-bold text-purple-400 digital-font mb-2">AKTIVNI ZAHTJEVI:</span>
+                    <div id="adminSessionsList" class="flex-1 overflow-y-auto space-y-2 terminal-scroll">
+                        <div onclick="selectSession('SEC-3920')" class="p-2 rounded-xl bg-purple-900/40 border border-purple-500/50 text-xs digital-font cursor-pointer hover:bg-purple-800/40 mb-2">
+                            <span id="adminSessionIdLabel" class="block text-white font-bold">Sesija: SEC-3920</span>
+                            <span class="text-[9px] text-emerald-400">● Live Feed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 bg-gray-900/90 rounded-2xl p-3 border border-gray-800 flex flex-col justify-between">
+                    <div class="border-b border-gray-800 pb-2 flex items-center justify-between">
+                        <span id="activeAdminSessionTitle" class="text-xs font-bold text-emerald-400 digital-font">SESIJA: SEC-3920</span>
+                        <span class="text-[9px] text-emerald-400 digital-font">● FIREBASE FIRESTORE</span>
+                    </div>
+
+                    <div id="adminChatLog" class="flex-1 overflow-y-auto my-2 space-y-2 text-xs digital-font terminal-scroll pr-1 flex flex-col">
+                        <div class="bg-red-950/60 p-2 rounded-xl border border-red-500/30 text-gray-200">
+                            <span class="text-[9px] text-red-400 block">SYSTEM:</span> Konekcija sa serverom uspostavljena.
+                        </div>
+                    </div>
+
+                    <form onsubmit="sendAdminReply(event)" class="flex gap-2 pt-2 border-t border-gray-800">
+                        <input type="text" id="adminReplyInput" placeholder="Odgovori klijentu kao Admin..." autocomplete="off" class="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:border-purple-500 focus:outline-none digital-font">
+                        <button type="submit" class="btn-ai px-4 py-2 rounded-xl text-xs font-bold text-white robo-font">POŠALJI</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FORMA ZA UPIT -->
+    <div id="requestModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
+        <div class="relative w-full max-w-xl rounded-3xl bg-gray-900 p-6 sm:p-8 border border-white/15 shadow-2xl my-8">
+            <button type="button" onclick="closeModal()" class="absolute right-5 top-5 text-gray-400 hover:text-white text-xl font-mono">✕</button>
+
+            <h2 class="text-xl sm:text-2xl font-bold text-white robo-font flex items-center gap-2">
+                <span class="text-red-500">//</span> ZAHTJEV ZA OBRADU MAPA / DUMP
+            </h2>
+            <p class="mt-1 text-xs text-gray-400 digital-font">Unesite podatke o vozilu i ECU računaru</p>
+
+            <form id="contactForm" onsubmit="handleFormSubmit(event)" class="mt-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 digital-font mb-1">VOZILO & MOTOR *</label>
+                    <input type="text" id="formName" required placeholder="Marka, model, godište i motor" class="w-full rounded-xl bg-gray-800 border border-gray-700 px-4 py-2.5 text-xs text-white focus:border-red-500 focus:outline-none digital-font">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 digital-font mb-1">EMAIL ADRESA *</label>
+                        <input type="email" id="formEmail" required placeholder="email@domena.com" class="w-full rounded-xl bg-gray-800 border border-gray-700 px-4 py-2.5 text-xs text-white focus:border-red-500 focus:outline-none digital-font">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-300 digital-font mb-1">TELEFON / VIBER</label>
+                        <input type="tel" id="formPhone" placeholder="061 103 677" class="w-full rounded-xl bg-gray-800 border border-gray-700 px-4 py-2.5 text-xs text-white focus:border-red-500 focus:outline-none digital-font">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 digital-font mb-1">VRSTA USLUGE *</label>
+                    <select id="serviceSelect" required class="w-full rounded-xl bg-gray-800 border border-gray-700 px-4 py-2.5 text-xs text-white focus:border-red-500 focus:outline-none digital-font">
+                        <option value="stage1_2">⭐ Stage 1 ili Stage 2 Custom Remap</option>
+                        <option value="dpf_egr_adblue">DPF / EGR / AdBlue OFF</option>
+                        <option value="pop_bangs">Pop & Bangs / Burble Mod</option>
+                        <option value="dtc_off">DTC Brisanje Grešaka</option>
+                        <option value="special_mods">Hot Start Fix / Swirl Flaps OFF</option>
+                        <option value="tcu_tuning">TCU Mjenjač Tuning (DSG / ZF8)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 digital-font mb-1">SPECIFIKACIJA / ECU BROJ</label>
+                    <textarea id="formMessage" rows="3" placeholder="Unesite podatke o ECU računaru..." class="w-full rounded-xl bg-gray-800 border border-gray-700 px-4 py-2 text-xs text-white focus:border-red-500 focus:outline-none digital-font"></textarea>
+                </div>
+
+                <button type="submit" id="submitBtn" class="w-full rounded-xl btn-robo py-3.5 text-xs font-bold uppercase tracking-wider text-white robo-font">
+                    POŠALJI ZAHTJEV
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-white/10 bg-gray-950/90 py-6 text-center text-xs font-mono text-gray-400 digital-font">
+        <p>© 2026 AD CHIP TUNING // Professional ECU & TCU Remap Architecture.</p>
+    </footer>
+
+    <!-- SKRIPTE -->
+    <script>
+        let db = null;
+        try {
+            if (typeof firebase !== 'undefined') {
+                const firebaseConfig = {
+                    apiKey: "AIzaSyApmZj8_ZPgMnGDGcb6C_Qrt-Sw6yJek4",
+                    authDomain: "nexus-c7a6c.firebaseapp.com",
+                    projectId: "nexus-c7a6c",
+                    storageBucket: "nexus-c7a6c.firebasestorage.app",
+                    messagingSenderId: "637470710366",
+                    appId: "1:637470710366:web:4e0b615991d0c53b6e72cf"
+                };
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                db = firebase.firestore();
+            }
+        } catch (e) {
+            console.warn("Firebase offline mode.", e);
+        }
+
+        let currentSessionId = localStorage.getItem('ad_session_id');
+        if (!currentSessionId) {
+            currentSessionId = 'AD-' + Math.floor(1000 + Math.random() * 9000);
+            localStorage.setItem('ad_session_id', currentSessionId);
+        }
+
+        const sessDisp = document.getElementById('sessionDisplay');
+        if (sessDisp) sessDisp.innerText = `ID: ${currentSessionId}`;
+        
+        const admSessLbl = document.getElementById('adminSessionIdLabel');
+        if (admSessLbl) admSessLbl.innerText = `Sesija: ${currentSessionId}`;
+
+        let activeAdminSession = currentSessionId;
+
+        if (db) {
+            try {
+                db.collection('ad_chats').doc(currentSessionId).collection('messages')
+                    .orderBy('timestamp', 'asc')
+                    .onSnapshot(snapshot => {
+                        const chatContainer = document.getElementById('chatMessages');
+                        if (!chatContainer) return;
+                        
+                        chatContainer.innerHTML = `
+                            <div class="bg-red-950/60 border border-red-500/30 p-2.5 rounded-2xl max-w-[85%] text-gray-200">
+                                <span class="text-[9px] text-red-400 block mb-0.5">AD CHIP // SUPPORT</span>
+                                Pozdrav! Koji ECU računar ili vozilo radite? Pošaljite HW/SW broj.
+                            </div>
+                        `;
+                        
+                        snapshot.forEach(doc => {
+                            const msg = doc.data();
+                            const msgDiv = document.createElement('div');
+                            if (msg.sender === 'admin') {
+                                msgDiv.className = "bg-purple-950/70 border border-purple-500/40 p-2.5 rounded-2xl max-w-[85%] text-purple-200 self-start";
+                                msgDiv.innerHTML = `<span class="text-[9px] text-purple-400 block mb-0.5">AD CHIP TUNER</span>${msg.text}`;
+                            } else {
+                                msgDiv.className = "bg-red-600/30 border border-red-400/30 p-2.5 rounded-2xl max-w-[85%] text-gray-100 ml-auto self-end text-right";
+                                msgDiv.innerHTML = `<span class="text-[9px] text-red-300 block mb-0.5">VI (${currentSessionId})</span>${msg.text}`;
+                            }
+                            chatContainer.appendChild(msgDiv);
+                        });
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }, err => console.warn(err));
+            } catch(e) {
+                console.warn(e);
+            }
+        }
+
+        function sendUserChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            if (db) {
+                try {
+                    db.collection('ad_chats').doc(currentSessionId).collection('messages').add({
+                        sender: 'user',
+                        text: text,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } catch(e) {
+                    console.error(e);
+                }
+            } else {
+                const chatContainer = document.getElementById('chatMessages');
+                const userDiv = document.createElement('div');
+                userDiv.className = "bg-red-600/30 border border-red-400/30 p-2.5 rounded-2xl max-w-[85%] text-gray-100 ml-auto self-end text-right";
+                userDiv.innerHTML = `<span class="text-[9px] text-red-300 block mb-0.5">VI (${currentSessionId})</span>${text}`;
+                chatContainer.appendChild(userDiv);
+            }
+            input.value = '';
+        }
+
+        let adminUnsubscribe = null;
+        function selectSession(sessionId) {
+            activeAdminSession = sessionId;
+            const titleElem = document.getElementById('activeAdminSessionTitle');
+            if (titleElem) titleElem.innerText = `SESIJA: ${sessionId}`;
+            
+            if (adminUnsubscribe) adminUnsubscribe();
+
+            if (db) {
+                try {
+                    adminUnsubscribe = db.collection('ad_chats').doc(sessionId).collection('messages')
+                        .orderBy('timestamp', 'asc')
+                        .onSnapshot(snapshot => {
+                            const adminLog = document.getElementById('adminChatLog');
+                            if (!adminLog) return;
+                            adminLog.innerHTML = '';
+                            
+                            snapshot.forEach(doc => {
+                                const msg = doc.data();
+                                const msgDiv = document.createElement('div');
+                                if (msg.sender === 'admin') {
+                                    msgDiv.className = "bg-purple-900/40 border border-purple-500/40 p-2 rounded-xl text-purple-200";
+                                    msgDiv.innerHTML = `<span class="text-[9px] text-purple-400 block">ADMIN:</span>${msg.text}`;
+                                } else {
+                                    msgDiv.className = "bg-red-950/60 p-2 rounded-xl border border-red-500/30 text-gray-200";
+                                    msgDiv.innerHTML = `<span class="text-[9px] text-red-400 block">${sessionId}:</span>${msg.text}`;
+                                }
+                                adminLog.appendChild(msgDiv);
+                            });
+                            adminLog.scrollTop = adminLog.scrollHeight;
+                        });
+                } catch(e) {
+                    console.warn(e);
+                }
+            }
+        }
+
+        function sendAdminReply(e) {
+            e.preventDefault();
+            const input = document.getElementById('adminReplyInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            if (db) {
+                try {
+                    db.collection('ad_chats').doc(activeAdminSession).collection('messages').add({
+                        sender: 'admin',
+                        text: text,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } catch(e) {
+                    console.error(e);
+                }
+            }
+            input.value = '';
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const loggedUser = localStorage.getItem('ad_logged_user');
+            const isAdmin = localStorage.getItem('ad_is_admin');
+            
+            if (loggedUser) {
+                if (isAdmin === 'true') {
+                    document.getElementById('authNavBtn').innerText = `⚡ ADMIN (${loggedUser}) [Odjava]`;
+                    document.getElementById('authNavBtn').className = "border border-purple-500 bg-purple-900/40 text-purple-300 rounded-xl px-3 py-1.5 text-xs font-bold uppercase digital-font transition";
+                    document.getElementById('userStatusBadge').innerHTML = `<span class="h-2 w-2 rounded-full bg-purple-400 animate-ping"></span> ADMIN: ${loggedUser}`;
+                } else {
+                    document.getElementById('authNavBtn').innerText = `👤 ${loggedUser} (Odjava)`;
+                }
+            }
+        });
+
+        function toggleAuthModal() {
+            const loggedUser = localStorage.getItem('ad_logged_user');
+            if (loggedUser) {
+                if (confirm(`Želite li da se odjavite (${loggedUser})?`)) {
+                    localStorage.removeItem('ad_logged_user');
+                    localStorage.removeItem('ad_is_admin');
+                    location.reload();
+                }
+                return;
+            }
+            document.getElementById('authModal').classList.toggle('hidden');
+        }
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const regForm = document.getElementById('registerForm');
+            const loginBtn = document.getElementById('tabLoginBtn');
+            const regBtn = document.getElementById('tabRegBtn');
+            const statusMsg = document.getElementById('authStatusMsg');
+            if (statusMsg) statusMsg.innerText = '';
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+                loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-red-600 text-white robo-font transition";
+                regBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-gray-400 hover:text-white robo-font transition";
+            } else {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                regBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white robo-font transition";
+                loginBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-gray-400 hover:text-white robo-font transition";
+            }
+        }
+
+        function handleRegisterSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPassword').value;
+
+            localStorage.setItem('ad_reg_name', name);
+            localStorage.setItem('ad_reg_email', email);
+            localStorage.setItem('ad_reg_pass', pass);
+
+            document.getElementById('authStatusMsg').innerHTML = "<span class='text-emerald-400'>Račun uspješno kreiran! Možete se prijaviti.</span>";
+            setTimeout(() => switchAuthTab('login'), 1200);
+        }
+
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const pass = document.getElementById('loginPassword').value;
+
+            const savedEmail = (localStorage.getItem('ad_reg_email') || '').toLowerCase();
+            const savedPass = localStorage.getItem('ad_reg_pass');
+            const savedName = localStorage.getItem('ad_reg_name') || email.split('@')[0];
+
+            if (email === 'bmwsn1p3r@gmail.com' || email === 'admin@nexus.com') {
+                localStorage.setItem('ad_logged_user', 'bmwsn1p3r');
+                localStorage.setItem('ad_is_admin', 'true');
+                document.getElementById('authStatusMsg').innerHTML = "<span class='text-purple-400'>Prijava uspješna! Dobrodošli Admin.</span>";
+                setTimeout(() => {
+                    toggleAuthModal();
+                    location.reload();
+                }, 800);
+            } else if (savedEmail && email === savedEmail && pass === savedPass) {
+                localStorage.setItem('ad_logged_user', savedName);
+                localStorage.setItem('ad_is_admin', 'false');
+                document.getElementById('authStatusMsg').innerHTML = "<span class='text-red-400'>Prijava uspješna! Učitavanje...</span>";
+                setTimeout(() => {
+                    toggleAuthModal();
+                    location.reload();
+                }, 800);
+            } else {
+                document.getElementById('authStatusMsg').innerHTML = "<span class='text-red-400'>Greška: Neispravan email ili lozinka!</span>";
+            }
+        }
+
+        function toggleChatWidget() {
+            const widget = document.getElementById('chatWidget');
+            widget.classList.toggle('hidden');
+            widget.classList.toggle('flex');
+        }
+
+        function toggleAdminPanel() {
+            const isAdmin = localStorage.getItem('ad_is_admin');
+            if (isAdmin === 'true') {
+                document.getElementById('adminModal').classList.remove('hidden');
+                document.getElementById('adminAuth').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                document.getElementById('adminDashboard').classList.add('grid');
+                selectSession(currentSessionId);
+            } else {
+                document.getElementById('adminModal').classList.toggle('hidden');
+            }
+        }
+
+        function verifyAdminPin() {
+            const pin = document.getElementById('adminPinInput').value;
+            if (pin === '1337' || pin === '0000') {
+                document.getElementById('adminAuth').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                document.getElementById('adminDashboard').classList.add('grid');
+                selectSession(currentSessionId);
+            } else {
+                alert('Pristup Odbijen: Neispravan Admin PIN kod!');
+            }
+        }
+
+        const sysLogs = [
+            "WINOLS: DUMP_CHECKSUM_OK",
+            "BOSCH_EDC17: MAP_CALIBRATION_READY",
+            "DENSO_RF7J: DTC_MASK_APPLIED",
+            "SIEMENS_PCR21: UNLOCKED_OK",
+            "FIREBASE FIRESTORE: CONNECTED"
+        ];
+        let logIndex = 0;
+
+        function updateMatrixClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ms = String(Math.floor(now.getMilliseconds() / 10)).padStart(2, '0');
+
+            const clockElem = document.getElementById('matrixClock');
+            if (clockElem) clockElem.innerText = `${hours}:${minutes}:${seconds}.${ms}`;
+
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const dateElem = document.getElementById('matrixDate');
+            if (dateElem) dateElem.innerText = `${year}-${month}-${day}`;
+
+            if (now.getMilliseconds() < 30) {
+                logIndex = (logIndex + 1) % sysLogs.length;
+                const logElem = document.getElementById('terminalLogClock');
+                if (logElem) logElem.innerText = sysLogs[logIndex];
+            }
+        }
+        setInterval(updateMatrixClock, 30);
+        updateMatrixClock();
+
+        function handleTerminalSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('terminalInput');
+            const log = document.getElementById('terminalLog');
+            const cmd = input.value.trim().toLowerCase();
+            if (!cmd) return;
+
+            const pUser = document.createElement('p');
+            pUser.className = "text-red-400";
+            pUser.innerText = `tuner@ad-chip:~# ${cmd}`;
+            log.appendChild(pUser);
+
+            const pResp = document.createElement('p');
+            pResp.className = "text-gray-300 ml-2";
+
+            switch (cmd) {
+                case 'help':
+                    pResp.innerText = "Komande: 'ecu', 'stage1', 'dpf', 'dtc', 'login', 'admin', 'kontakt', 'clear'";
+                    break;
+                case 'login':
+                case 'register':
+                    pResp.innerHTML = "<span class='text-red-400'>OTVARANJE PORTALA...</span>";
+                    toggleAuthModal();
+                    break;
+                case 'admin':
+                    pResp.innerHTML = "<span class='text-purple-400'>OTVARANJE ADMIN KONZOLE...</span>";
+                    toggleAdminPanel();
+                    break;
+                case 'ecu':
+                    pResp.innerHTML = "<span class='text-emerald-400'>ECU SYSTEM READY</span> | Bosch, Siemens, Denso, Delphi";
+                    break;
+                case 'stage1':
+                    pResp.innerText = "Stage 1: Povećanje snage i optimizacija mape ubrizgavanja.";
+                    break;
+                case 'kontakt':
+                    pResp.innerText = "MOB: 061 103 677 | MAIL: bmwsn1p3r@gmail.com";
+                    break;
+                case 'clear':
+                    log.innerHTML = "";
+                    input.value = "";
+                    return;
+                default:
+                    pResp.innerText = `Komanda '${cmd}' nije prepoznata. Ukucajte 'help'.`;
+            }
+
+            log.appendChild(pResp);
+            log.scrollTop = log.scrollHeight;
+            input.value = "";
+        }
+
+        function openModal(serviceValue) {
+            const select = document.getElementById('serviceSelect');
+            if (serviceValue && select) select.value = serviceValue;
+            document.getElementById('requestModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('requestModal').classList.add('hidden');
+        }
+
+        function calculateEstimate() {
+            const service = document.getElementById('calcService').value;
+            const scale = document.getElementById('calcScale').value;
+            const resultDiv = document.getElementById('calcResult');
+            let base = "100 - 200 KM";
+
+            if (service === 'stage1') {
+                if (scale === 'standard') base = "120 - 200 KM";
+                else if (scale === 'advanced') base = "200 - 350 KM";
+                else base = "150 - 250 KM";
+            } else if (service === 'combo') {
+                if (scale === 'standard') base = "180 - 280 KM";
+                else base = "280 - 450 KM";
+            }
+            resultDiv.innerText = base;
+        }
+
+        function scrollToCalc() {
+            document.getElementById('calcSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function applyCalcToForm() {
+            openModal('stage1_2');
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            alert('Vaš zahtjev je zaprimljen! Bićete kontaktirani uskoro.');
+            closeModal();
+        }
+    </script>
+</body>
+</html>
